@@ -1,8 +1,20 @@
-# LoRA for LARGE LLMs
+# 🥳 Platypus-30b
+
+Platypus-30B is an instruction fine-tuned model based on the LLaMA-30b transformer architecture. Availble via HuggingFace: [`lilloukas/Platypus-30b`](https://huggingface.co/lilloukas/Platypus-30b).
+
+| Benchmark Metric      | Value |
+|-----------------------|-------|
+| MMLU (5-shot)         | 65.4  |
+| ARC (25-shot)         | 64.6  |
+| HellaSwag (10-shot)   | 84.3  |
+| TruthfulQA (0-shot)   | 45.8  |
+| Avg.                  | 65 💥 |
+
+Platypus-30B also scored 70.8 (10th out of 49 models) on the [ReClor](https://eval.ai/web/challenges/challenge-page/503/leaderboard/1347) test set.
 
 ### Local Setup
 
-This repository is multi-GPU friendly, and provides code to use model OR data parellelism using PyTorch. It is based on the alpaca-lora and dromedary repositories.
+This repository is multi-GPU friendly, and provides code to use model OR data parellelism, depending on your computational resources. 
 
 1. Install dependencies
 
@@ -58,7 +70,7 @@ WORLD_SIZE=1 CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 python finetune.py \
     --output_dir '' \
 ```
 
-### Inference (`inference_*.py`)
+### Inference (`inference.py`)
 
 Run inference using a csv or json file. Inference commands follow the same structure noted above for fine-tuning.
 
