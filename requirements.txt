@@ -7,9 +7,7 @@ black[jupyter]
 datasets
 fire
 git+https://github.com/huggingface/peft.git@e536616888d51b453ed354a6f1e243fecb02ea08
-git+https://github.com/huggingface/transformers@de9255de27abfcae4a1f816b904915f0b1e23cd9
-# git+https://github.com/huggingface/transformers.git@8f093fb799246f7dd9104ff44728da0c53a9f67a
-# git+https://github.com/huggingface/peft.git@189a6b8e357ecda05ccde13999e4c35759596a67
+git+https://github.com/huggingface/transformers
 sentencepiece
 gradio
 wandb
