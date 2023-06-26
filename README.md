@@ -1,6 +1,8 @@
 # 🥳 Platypus-30B
 
-Platypus-30B is an instruction fine-tuned model based on the LLaMA-30B transformer architecture. Availble via HuggingFace: [`lilloukas/Platypus-30b`](https://huggingface.co/lilloukas/Platypus-30b).
+Platypus-30B is an instruction fine-tuned model based on the LLaMA-30B transformer architecture. Platy takes advantage of [LoRA](https://arxiv.org/pdf/2106.09685.pdf). 
+
+Availble via HuggingFace: [`lilloukas/Platypus-30b`](https://huggingface.co/lilloukas/Platypus-30b)
 
 | Benchmark Metric      | Value |
 |-----------------------|-------|
@@ -10,13 +12,13 @@ Platypus-30B is an instruction fine-tuned model based on the LLaMA-30B transform
 | TruthfulQA (0-shot)   | 45.8  |
 | Avg.                  | 65 💥 |
 
-Platypus-30B also acheived an accuracy of 70.8 (10th out of 49 models) on the [ReClor](https://eval.ai/web/challenges/challenge-page/503/leaderboard/1347) test set.
+Platypus-30B acheives an accuracy of 70.8 on the [ReClor](https://whyu.me/reclor/) test set.
 
 We have also successfully run a fine-tuning of LlaMa-65B using this repository. 
 
 ### Local Setup
 
-This repository is multi-GPU friendly, and provides code to use model OR data parellelism, depending on your computational resources. 
+This repository is multi-GPU friendly, and provides code to use model or data parellelism, depending on your computational resources. 
 
 1. Install dependencies
 
@@ -30,28 +32,35 @@ This repository is multi-GPU friendly, and provides code to use model OR data pa
 
 Run `fine-tuning.sh`.
 
-Note: The script above uses torchrun. PyTorch is not in `requirements.txt` since technically you can run the repository without it. To use the script above, please install [PyTorch](https://pytorch.org/get-started/locally/). We recommend using torchrun, since it's faster, and PyTorch 2.0+ for `torch.compile`.
+Note: The script above uses `torchrun` for data parallelism. PyTorch is not in `requirements.txt` since technically you can run fine-tuning without it. To use `fine-tuning.sh`, please install [PyTorch](https://pytorch.org/get-started/locally/). We recommend using `torchrun` and PyTorch 2.0+ for speed + `torch.compile`.
 
-Hyperparameters used to fine-tune Platypus-30B follow:
+Hyperparameters used to fine-tune Platypus-30B:
 
-| Hyperparameter      | Value |
-|---------------------|-------|
-| learning_rate       | ---   |
-| batch_size          | ---   |
-| microbatch_size     | ---   |
-| warmup_steps        | ---   |
-| epochs              | ---   |
-| weight_decay        | ---   |
-| optimizer           | ---   |
-| weight_decay        | ---   |
-| cutoff_len          | ---   |
-| lora_target_modules | ---   |
+| Hyperparameter      | Value  |
+|---------------------|--------|
+| learning rate       | 4e-4   |
+| batch size          | 128    |
+| microbatch  size    | 8      |
+| warmup ratio        | 0.03   |
+| epochs              | 1      |
+| weight decay        | 0.     |
+| lr scheduler        | cosine |
+| lora alpha          | 16     |
+| lora rank           | 16     |
+| lora dropout        | 0.05   |
+| lora target modules | q_proj,k_proj,v_proj,o_proj|
+| cutoff length       | 2048   |
+| train on inputs     | False  |
+| group by length     | False  |
+| add eos token       | False  |
 
-If your model cannot fit on the memory of each GPU, please see the alternative training option below for model parallelism.
+Gradient accumulation steps = global_batch_size / micro_batch_size / num_gpus = 128 / 8 / 4 = 4.
+
+If your model **cannot** fit on the memory of each GPU, please use the alternative fine-tuning option below to take advantage of model parallelism.
 
 ```bash
 export WORLD_SIZE=1
-export CUDA_VISIBLE_DEVICES=0,1
+export CUDA_VISIBLE_DEVICES=0,1,2,3
 
 python finetune.py \
     --base_model './llama13B_hf' \
@@ -60,7 +69,7 @@ python finetune.py \
     --batch_size 128 \
     --micro_batch_size 16 \
     --num_epochs 1 \
-    --learning_rate 2e-4 \
+    --learning_rate 4e-4 \
     --cutoff_len 2048 \
     --val_set_size 0 \
     --lora_r 16 \
@@ -77,7 +86,7 @@ Run inference using a csv or json file. Inference commands follow the same struc
 ### Checkpoint export (`export_*_checkpoint.py`)
 
 These files contain scripts that merge the LoRA weights back into the base model
-for export to Hugging Face format and to PyTorch `state_dicts`.
+for export to HuggingFace format and to PyTorch `state_dicts`.
 They should help users
 who want to run inference in projects like [llama.cpp](https://github.com/ggerganov/llama.cpp)
 or [alpaca.cpp](https://github.com/antimatter15/alpaca.cpp).
