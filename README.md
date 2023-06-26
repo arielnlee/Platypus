@@ -10,13 +10,13 @@ Platypus-30B is an instruction fine-tuned model based on the LLaMA-30B transform
 | TruthfulQA (0-shot)   | 45.8  |
 | Avg.                  | 65 💥 |
 
-Platypus-30B also acheived an accuracy of 70.8 (10th out of 49 models) on the [ReClor](https://eval.ai/web/challenges/challenge-page/503/leaderboard/1347) test set.
+Platypus-30B also acheived an accuracy of 70.8 (10th out of 49 models) on the [ReClor](https://whyu.me/reclor/) test set.
 
 We have also successfully run a fine-tuning of LlaMa-65B using this repository. 
 
 ### Local Setup
 
-This repository is multi-GPU friendly, and provides code to use model OR data parellelism, depending on your computational resources. 
+This repository is multi-GPU friendly, and provides code to use model or data parellelism, depending on your computational resources. 
 
 1. Install dependencies
 
@@ -30,28 +30,34 @@ This repository is multi-GPU friendly, and provides code to use model OR data pa
 
 Run `fine-tuning.sh`.
 
-Note: The script above uses torchrun. PyTorch is not in `requirements.txt` since technically you can run the repository without it. To use the script above, please install [PyTorch](https://pytorch.org/get-started/locally/). We recommend using torchrun, since it's faster, and PyTorch 2.0+ for `torch.compile`.
+Note: The script above uses torchrun. PyTorch is not in `requirements.txt` since technically you can run the repository without it. To use the script above, please install [PyTorch](https://pytorch.org/get-started/locally/). We recommend using torchrun and PyTorch 2.0+ for speed + `torch.compile`.
 
 Hyperparameters used to fine-tune Platypus-30B follow:
 
-| Hyperparameter      | Value |
-|---------------------|-------|
-| learning_rate       | ---   |
-| batch_size          | ---   |
-| microbatch_size     | ---   |
-| warmup_steps        | ---   |
-| epochs              | ---   |
-| weight_decay        | ---   |
-| optimizer           | ---   |
-| weight_decay        | ---   |
-| cutoff_len          | ---   |
-| lora_target_modules | ---   |
+| Hyperparameter      | Value  |
+|---------------------|--------|
+| learning_rate       | 4e-4   |
+| batch_size          | 128    |
+| microbatch_size     | 8      |
+| warmup_ratio        | 0.03   |
+| epochs              | 1      |
+| weight_decay        | 0.     |
+| lr_scheduler        | cosine |
+| lora_alpha          | 16     |
+| lora_dropout        | 0.05   |
+| lora_target_modules | q_proj,k_proj,v_proj,o_proj|
+| cutoff_len          | 2048   |
+| train_on_inputs     | False  |
+| group_by_length     | False  |
+| add_eos_token       | False  |
 
-If your model cannot fit on the memory of each GPU, please see the alternative training option below for model parallelism.
+Gradient accumulation steps = global_batch_size / micro_batch_size / num_gpus = 128 / 8 / 4 = 4.
+
+If your model **cannot** fit on the memory of each GPU, please see the alternative training option below for model parallelism.
 
 ```bash
 export WORLD_SIZE=1
-export CUDA_VISIBLE_DEVICES=0,1
+export CUDA_VISIBLE_DEVICES=0,1,2,3
 
 python finetune.py \
     --base_model './llama13B_hf' \
@@ -60,7 +66,7 @@ python finetune.py \
     --batch_size 128 \
     --micro_batch_size 16 \
     --num_epochs 1 \
-    --learning_rate 2e-4 \
+    --learning_rate 4e-4 \
     --cutoff_len 2048 \
     --val_set_size 0 \
     --lora_r 16 \
@@ -77,7 +83,7 @@ Run inference using a csv or json file. Inference commands follow the same struc
 ### Checkpoint export (`export_*_checkpoint.py`)
 
 These files contain scripts that merge the LoRA weights back into the base model
-for export to Hugging Face format and to PyTorch `state_dicts`.
+for export to HuggingFace format and to PyTorch `state_dicts`.
 They should help users
 who want to run inference in projects like [llama.cpp](https://github.com/ggerganov/llama.cpp)
 or [alpaca.cpp](https://github.com/antimatter15/alpaca.cpp).
