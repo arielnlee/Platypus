@@ -30,7 +30,7 @@ This repository is multi-GPU friendly, and provides code to use model or data pa
 
 Run `fine-tuning.sh`.
 
-Note: The script above uses torchrun. PyTorch is not in `requirements.txt` since technically you can run the repository without it. To use the script above, please install [PyTorch](https://pytorch.org/get-started/locally/). We recommend using torchrun and PyTorch 2.0+ for speed + `torch.compile`.
+Note: The script above uses `torchrun`. PyTorch is not in `requirements.txt` since technically you can run the repository without it. To use the script above, please install [PyTorch](https://pytorch.org/get-started/locally/). We recommend using `torchrun` and PyTorch 2.0+ for speed + `torch.compile`.
 
 Hyperparameters used to fine-tune Platypus-30B follow:
 
