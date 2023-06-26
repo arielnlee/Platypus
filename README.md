@@ -30,30 +30,31 @@ This repository is multi-GPU friendly, and provides code to use model or data pa
 
 Run `fine-tuning.sh`.
 
-Note: The script above uses `torchrun`. PyTorch is not in `requirements.txt` since technically you can run the repository without it. To use the script above, please install [PyTorch](https://pytorch.org/get-started/locally/). We recommend using `torchrun` and PyTorch 2.0+ for speed + `torch.compile`.
+Note: The script above uses `torchrun`. PyTorch is not in `requirements.txt` since technically you can run fine-tuning without it. To use `fine-tuning.sh`, please install [PyTorch](https://pytorch.org/get-started/locally/). We recommend using `torchrun` and PyTorch 2.0+ for speed + `torch.compile`.
 
 Hyperparameters used to fine-tune Platypus-30B follow:
 
 | Hyperparameter      | Value  |
 |---------------------|--------|
-| learning_rate       | 4e-4   |
-| batch_size          | 128    |
-| microbatch_size     | 8      |
-| warmup_ratio        | 0.03   |
+| learning rate       | 4e-4   |
+| batch size          | 128    |
+| microbatch  size    | 8      |
+| warmup ratio        | 0.03   |
 | epochs              | 1      |
-| weight_decay        | 0.     |
-| lr_scheduler        | cosine |
-| lora_alpha          | 16     |
-| lora_dropout        | 0.05   |
-| lora_target_modules | q_proj,k_proj,v_proj,o_proj|
-| cutoff_len          | 2048   |
-| train_on_inputs     | False  |
-| group_by_length     | False  |
-| add_eos_token       | False  |
+| weight decay        | 0.     |
+| lr scheduler        | cosine |
+| lora alpha          | 16     |
+| lora rank           | 16     |
+| lora dropout        | 0.05   |
+| lora target modules | q_proj,k_proj,v_proj,o_proj|
+| cutoff length       | 2048   |
+| train on inputs     | False  |
+| group by length     | False  |
+| add eos token       | False  |
 
 Gradient accumulation steps = global_batch_size / micro_batch_size / num_gpus = 128 / 8 / 4 = 4.
 
-If your model **cannot** fit on the memory of each GPU, please see the alternative training option below for model parallelism.
+If your model **cannot** fit on the memory of each GPU, please see the alternative fine-tuning option below to take advantage of model parallelism.
 
 ```bash
 export WORLD_SIZE=1
