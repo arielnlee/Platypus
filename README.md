@@ -65,7 +65,7 @@ export WORLD_SIZE=1
 export CUDA_VISIBLE_DEVICES=0,1,2,3
 
 python finetune.py \
-    --base_model './llama13B_hf' \
+    --base_model './llama30B_hf' \
     --data_path './train_final.json' \
     --output_dir './Platypus-30b' \
     --batch_size 128 \
