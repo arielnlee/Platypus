@@ -2,7 +2,7 @@
 
 Platypus-30B is an instruction fine-tuned model based on the LLaMA-30B transformer architecture. Platy takes advantage of [LoRA](https://arxiv.org/pdf/2106.09685.pdf). 
 
-Availble via HuggingFace: [`lilloukas/Platypus-30b`](https://huggingface.co/lilloukas/Platypus-30b)
+Availble via HuggingFace: [`lilloukas/Platypus-30B`](https://huggingface.co/lilloukas/Platypus-30B)
 
 | Benchmark Metric      | Value |
 |-----------------------|-------|
@@ -12,7 +12,9 @@ Availble via HuggingFace: [`lilloukas/Platypus-30b`](https://huggingface.co/lill
 | TruthfulQA (0-shot)   | 45.8  |
 | Avg.                  | 65 💥 |
 
-We use state-of-the-art [Language Model Evaluation Harness](https://github.com/EleutherAI/lm-evaluation-harness) to run the benchmark tests above. Platypus-30B acheives an accuracy of 70.8 on the [ReClor](https://whyu.me/reclor/) test set.
+We use state-of-the-art [Language Model Evaluation Harness](https://github.com/EleutherAI/lm-evaluation-harness) to run the benchmark tests above. 
+
+Platypus-30B acheives an accuracy of 70.8 on the [ReClor](https://whyu.me/reclor/) test set.
 
 We have also successfully run a fine-tuning of LlaMa-65B using this repository. 
 
