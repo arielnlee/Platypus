@@ -92,3 +92,29 @@ for export to HuggingFace format and to PyTorch `state_dicts`.
 They should help users
 who want to run inference in projects like [llama.cpp](https://github.com/ggerganov/llama.cpp)
 or [alpaca.cpp](https://github.com/antimatter15/alpaca.cpp).
+
+### CLI 
+
+[Fastchat](https://github.com/lm-sys/FastChat) provides a simple setup for those interested in running the model.
+
+First, clone the Fastchat repository:
+
+```
+git clone https://github.com/lm-sys/FastChat.git
+cd FastChat
+```
+
+Download the required packages:
+
+```
+pip3 install --upgrade pip  # enable PEP 660 support
+pip3 install -e .
+```
+
+Finally, run the following:
+
+```
+python3 -m fastchat.serve.cli --model-path lilloukas/Platypus-30B --conv_template alpaca
+```
+
+

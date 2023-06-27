@@ -17,4 +17,4 @@ torchrun --nproc_per_node=4 --master_port=1234 finetune.py \
     --group_by_length False \
     --prompt_template_name alpaca \
     --lr_scheduler "linear" \
-    --warmup_ratio 0.06
+    --warmup_ratio 0.03
