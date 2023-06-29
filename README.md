@@ -1,24 +1,78 @@
 # 🥳 Platypus-30B
 
-Platypus-30B is an instruction fine-tuned model based on the LLaMA-30B transformer architecture. Platy takes advantage of [LoRA](https://arxiv.org/pdf/2106.09685.pdf). 
+Platypus-30B is an instruction fine-tuned model based on the LLaMA-30B transformer architecture. Platty takes advantage of [LoRA](https://arxiv.org/pdf/2106.09685.pdf). 
 
 Availble via HuggingFace: [`lilloukas/Platypus-30B`](https://huggingface.co/lilloukas/Platypus-30B)
 
-| Benchmark Metric      | Value |
+| Metric                | Value |
 |-----------------------|-------|
-| MMLU (5-shot)         | 65.4  |
+| MMLU (5-shot)         | 64.2  |
 | ARC (25-shot)         | 64.6  |
 | HellaSwag (10-shot)   | 84.3  |
 | TruthfulQA (0-shot)   | 45.8  |
-| Avg.                  | 65 💥 |
+| Avg.                  | 64.7 💥 | 
 
-We use state-of-the-art [Language Model Evaluation Harness](https://github.com/EleutherAI/lm-evaluation-harness) to run the benchmark tests above. 
+
+We use state-of-the-art EleutherAI [Language Model Evaluation Harness](https://github.com/EleutherAI/lm-evaluation-harness) to run the benchmark tests above.
 
 Platypus-30B acheives an accuracy of 70.8 on the [ReClor](https://whyu.me/reclor/) test set.
 
 We have also successfully run a fine-tuning of LlaMa-65B using this repository. 
 
-### Local Setup
+## Platty Merges
+
+### SuperPlatty-30B
+
+SuperPlatty-30B is a merge of [`lilloukas/Platypus-30B`](https://huggingface.co/lilloukas/Platypus-30B) and [`kaiokendev/SuperCOT-LoRA`](https://huggingface.co/kaiokendev/SuperCOT-LoRA). 
+
+Available via HuggingFace: [`ariellee/SuperPlatty-30B`](https://huggingface.co/ariellee/SuperPlatty-30B)
+
+| Metric                | Value |
+|-----------------------|-------|
+| MMLU (5-shot)         | -     |
+| ARC (25-shot)         | -     |
+| HellaSwag (10-shot)   | -     |
+| TruthfulQA (0-shot)   | -     |
+| Avg.                  | -     | 
+
+### GPlatty-30B
+
+GPlatty-30B is a merge of [`lilloukas/Platypus-30B`](https://huggingface.co/lilloukas/Platypus-30B) and [`chansung/gpt4-alpaca-lora-30b`](https://huggingface.co/chansung/gpt4-alpaca-lora-30b). 
+
+Available via HuggingFace: [`lilloukas/GPlatty-30B`](https://huggingface.co/lilloukas/GPlatty-30B)
+
+| Metric                | Value |
+|-----------------------|-------|
+| MMLU (5-shot)         | 63.6  |
+| ARC (25-shot)         | 66    |
+| HellaSwag (10-shot)   | 84.8  |
+| TruthfulQA (0-shot)   | 53.8  |
+| Avg.                  | 67 🔥 | 
+
+
+## CLI 
+
+[Fastchat](https://github.com/lm-sys/FastChat) provides a simple setup for those interested in running the model. Afrer downloading the model through HuggingFace, clone the Fastchat repository:
+
+```
+git clone https://github.com/lm-sys/FastChat.git
+cd FastChat
+```
+
+Download the required packages:
+
+```
+pip3 install --upgrade pip  # enable PEP 660 support
+pip3 install -e .
+```
+
+Finally, run the following:
+
+```
+python3 -m fastchat.serve.cli --model-path lilloukas/Platypus-30B --conv_template alpaca
+```
+
+## Local Setup
 
 This repository is multi-GPU friendly, and provides code to use model or data parellelism, depending on your computational resources. 
 
@@ -30,7 +84,7 @@ This repository is multi-GPU friendly, and provides code to use model or data pa
 
 2. Be sure to use these exact requirements or you may run into model saving or OOM issues.
 
-### Fine-tuning (`finetune.py`)
+## Fine-tuning (`finetune.py`)
 
 Run `fine-tuning.sh`.
 
@@ -81,7 +135,7 @@ python finetune.py \
     --train_on_inputs False \
     --group_by_length False
 ```
-### Inference (`inference.py`)
+## Inference (`inference.py`)
 
 Run inference using a csv or json file. Inference commands follow the same structure noted above for fine-tuning.
 
@@ -92,29 +146,3 @@ for export to HuggingFace format and to PyTorch `state_dicts`.
 They should help users
 who want to run inference in projects like [llama.cpp](https://github.com/ggerganov/llama.cpp)
 or [alpaca.cpp](https://github.com/antimatter15/alpaca.cpp).
-
-### CLI 
-
-[Fastchat](https://github.com/lm-sys/FastChat) provides a simple setup for those interested in running the model.
-
-First, clone the Fastchat repository:
-
-```
-git clone https://github.com/lm-sys/FastChat.git
-cd FastChat
-```
-
-Download the required packages:
-
-```
-pip3 install --upgrade pip  # enable PEP 660 support
-pip3 install -e .
-```
-
-Finally, run the following:
-
-```
-python3 -m fastchat.serve.cli --model-path lilloukas/Platypus-30B --conv_template alpaca
-```
-
-
