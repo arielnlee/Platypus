@@ -29,11 +29,11 @@ Available via HuggingFace: [`ariellee/SuperPlatty-30B`](https://huggingface.co/a
 
 | Metric                | Value |
 |-----------------------|-------|
-| MMLU (5-shot)         | -     |
-| ARC (25-shot)         | -     |
-| HellaSwag (10-shot)   | -     |
-| TruthfulQA (0-shot)   | -     |
-| Avg.                  | -     | 
+| MMLU (5-shot)         | 62.6  |
+| ARC (25-shot)         | 66.1  |
+| HellaSwag (10-shot)   | 83.9  |
+| TruthfulQA (0-shot)   | 54.0  |
+| Avg.                  | 66.6  | 
 
 ### GPlatty-30B
 
