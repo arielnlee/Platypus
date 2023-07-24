@@ -2,7 +2,7 @@
 
 Platypus-30B is an instruction fine-tuned model based on the LLaMA-30B transformer architecture. Platty takes advantage of [LoRA](https://arxiv.org/pdf/2106.09685.pdf). 
 
-Availble via HuggingFace: [`lilloukas/Platypus-30B`](https://huggingface.co/lilloukas/Platypus-30B)
+Availble via HuggingFace: [`garage-bAInd/Platypus-30B`](https://huggingface.co/garage-bAInd/Platypus-30B)
 
 | Metric                | Value |
 |-----------------------|-------|
@@ -23,9 +23,9 @@ We have also successfully run a fine-tuning of LlaMa-65B using this repository.
 
 ### SuperPlatty-30B
 
-SuperPlatty-30B is a merge of [`lilloukas/Platypus-30B`](https://huggingface.co/lilloukas/Platypus-30B) and [`kaiokendev/SuperCOT-LoRA`](https://huggingface.co/kaiokendev/SuperCOT-LoRA). 
+SuperPlatty-30B is a merge of [`garage-bAInd/Platypus-30B`](https://huggingface.co/garage-bAInd/Platypus-30B) and [`kaiokendev/SuperCOT-LoRA`](https://huggingface.co/kaiokendev/SuperCOT-LoRA). 
 
-Available via HuggingFace: [`ariellee/SuperPlatty-30B`](https://huggingface.co/ariellee/SuperPlatty-30B)
+Available via HuggingFace: [`garage-bAInd/SuperPlatty-30B`](https://huggingface.co/garage-bAInd/SuperPlatty-30B)
 
 | Metric                | Value |
 |-----------------------|-------|
@@ -37,9 +37,9 @@ Available via HuggingFace: [`ariellee/SuperPlatty-30B`](https://huggingface.co/a
 
 ### GPlatty-30B
 
-GPlatty-30B is a merge of [`lilloukas/Platypus-30B`](https://huggingface.co/lilloukas/Platypus-30B) and [`chansung/gpt4-alpaca-lora-30b`](https://huggingface.co/chansung/gpt4-alpaca-lora-30b). 
+GPlatty-30B is a merge of [`garage-bAInd/Platypus-30B`](https://huggingface.co/garage-bAInd/Platypus-30B) and [`chansung/gpt4-alpaca-lora-30b`](https://huggingface.co/chansung/gpt4-alpaca-lora-30b). 
 
-Available via HuggingFace: [`lilloukas/GPlatty-30B`](https://huggingface.co/lilloukas/GPlatty-30B)
+Available via HuggingFace: [`garage-bAInd/GPlatty-30B`](https://huggingface.co/garage-bAInd/GPlatty-30B)
 
 | Metric                | Value |
 |-----------------------|-------|
