@@ -1,20 +1,20 @@
-torchrun --nproc_per_node=4 --master_port=1234 finetune.py \
-    --base_model ./llama30B_hf \
-    --data-path ./train_final.json \
-    --output_dir ./llama30B_ft \
-    --batch_size 128 \
-    --micro_batch_size 8 \
+torchrun --nproc_per_node=3 --master_port=1234 finetune.py \
+    --base_model meta-llama/Llama-2-13b-hf \
+    --data-path ./cot_set.json \
+    --output_dir ./llama2-platypus-13b \
+    --batch_size 96 \
+    --micro_batch_size 4 \
     --num_epochs 1 \
-    --learning_rate 0.0004 \
-    --cutoff_len 2048 \
+    --learning_rate 0.0003 \
+    --cutoff_len 4096 \
     --val_set_size 0 \
     --lora_r 16 \
     --lora_alpha 16 \
     --lora_dropout 0.05 \
-    --lora_target_modules "[q_proj, k_proj, v_proj, o_proj]" \
+    --lora_target_modules '[q_proj, k_proj, v_proj, o_proj]' \
     --train_on_inputs False \
     --add_eos_token False \
     --group_by_length False \
     --prompt_template_name alpaca \
-    --lr_scheduler "linear" \
-    --warmup_ratio 0.03
+    --lr_scheduler 'cosine' \
+    --warmup_steps 100

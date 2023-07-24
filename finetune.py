@@ -15,11 +15,13 @@ from peft import (
     LoraConfig,
     get_peft_model,
     prepare_model_for_int8_training,
-    set_peft_model_state_dict,
+    set_peft_model_state_dict
 )
+
 from transformers import LlamaForCausalLM, LlamaTokenizer
 
 from utils.prompter import Prompter
+
 
 class SavePeftModelCallback(TrainerCallback):
     def on_save(
@@ -63,19 +65,17 @@ def train(
     batch_size: int = 128,
     micro_batch_size: int = 8,
     num_epochs: int = 1,
-    learning_rate: float = 4e-4,
-    cutoff_len: int = 2048,
+    learning_rate: float = 3e-4,
+    cutoff_len: int = 4096,
     val_set_size: int = 0,
+    lr_scheduler: str = "cosine",
+    warmup_steps: int = 100 
     # lora hyperparams
     lora_r: int = 16,
     lora_alpha: int = 16,
     lora_dropout: float = 0.05,
-    lora_target_modules: List[str] = [
-        "q_proj",
-        "k_proj",
-        "v_proj",
-        "o_proj"
-    ],
+    # from peft docs: ["q_proj", "k_proj", "v_proj", "o_proj", "fc_in", "fc_out", "wte"]
+    lora_target_modules: List[str] = ["q_proj", "k_proj", "v_proj", "o_proj"], # if pretrained model < 30B params, remove modules
     # llm hyperparams
     train_on_inputs: bool = False,  # if False, masks out inputs in loss
     add_eos_token: bool = False,
@@ -86,9 +86,7 @@ def train(
     wandb_watch: str = "",  # options: false | gradients | all
     wandb_log_model: str = "",  # options: false | true
     resume_from_checkpoint: str = None,  # either training checkpoint or final adapter
-    prompt_template_name: str = "alpaca",  # The prompt template to use, will default to alpaca.
-    lr_scheduler: str = "linear",
-    warmup_ratio: float = 0.06 # overridden by warmup steps!
+    prompt_template_name: str = "alpaca"
 ):
     if int(os.environ.get("LOCAL_RANK", 0)) == 0:
         print(
@@ -102,6 +100,8 @@ def train(
             f"learning_rate: {learning_rate}\n"
             f"cutoff_len: {cutoff_len}\n"
             f"val_set_size: {val_set_size}\n"
+            f"lr_scheduler: {lr_scheduler}\n"
+            f"warmup_steps: {warmup_steps}\n"
             f"lora_r: {lora_r}\n"
             f"lora_alpha: {lora_alpha}\n"
             f"lora_dropout: {lora_dropout}\n"
@@ -129,7 +129,7 @@ def train(
     if ddp:
         device_map = {"": int(os.environ.get("LOCAL_RANK") or 0)}
         gradient_accumulation_steps = gradient_accumulation_steps // world_size
-        print(gradient_accumulation_steps)
+        print("gradient_accumulation_steps: ", gradient_accumulation_steps)
 
     # Check if parameter passed or if set within environ
     use_wandb = len(wandb_project) > 0 or (
@@ -147,8 +147,7 @@ def train(
         base_model,
         load_in_8bit=True,
         torch_dtype=torch.float16,
-        device_map=device_map,
-    )
+        device_map=device_map)
 
     tokenizer = LlamaTokenizer.from_pretrained(base_model)
     
@@ -158,7 +157,7 @@ def train(
     print("pre-trained model's BOS EOS and PAD token id:",bos,eos,pad," => It should be 1,2,none")
 
     tokenizer.pad_token_id = 0  # unk. we want this to be different from the eos token
-    tokenizer.padding_side = "right"  # Allow batched inference
+    tokenizer.padding_side = "right"
 
     def tokenize(prompt, add_eos_token=True):
         result = tokenizer(
@@ -184,16 +183,16 @@ def train(
         full_prompt = prompter.generate_prompt(
             data_point["instruction"],
             data_point["input"],
-            data_point["output"],
-        )
+            data_point["output"])
+        
         tokenized_full_prompt = tokenize(full_prompt)
         if not train_on_inputs:
             user_prompt = prompter.generate_prompt(
-                data_point["instruction"], data_point["input"]
-            )
+                data_point["instruction"], data_point["input"])
+            
             tokenized_user_prompt = tokenize(
-                user_prompt, add_eos_token=add_eos_token
-            )
+                user_prompt, add_eos_token=add_eos_token)
+            
             user_prompt_len = len(tokenized_user_prompt["input_ids"])
 
             if add_eos_token:
@@ -203,7 +202,7 @@ def train(
                 -100
             ] * user_prompt_len + tokenized_full_prompt["labels"][
                 user_prompt_len:
-            ]  # could be sped up, probably
+            ]  # TODO: Speed up?
         return tokenized_full_prompt
 
     model = prepare_model_for_int8_training(model)
@@ -214,8 +213,8 @@ def train(
         target_modules=lora_target_modules,
         lora_dropout=lora_dropout,
         bias="none",
-        task_type="CAUSAL_LM",
-    )
+        task_type="CAUSAL_LM")
+
     model = get_peft_model(model, config)
 
     if data_path.endswith(".json") or data_path.endswith(".jsonl"):
@@ -243,7 +242,7 @@ def train(
         else:
             print(f"Checkpoint {checkpoint_name} not found")
 
-    model.print_trainable_parameters()  # Be more transparent about the % of trainable params.
+    model.print_trainable_parameters()
 
     if val_set_size > 0:
         train_val = data["train"].train_test_split(
@@ -271,17 +270,18 @@ def train(
         args=transformers.TrainingArguments(
             per_device_train_batch_size=micro_batch_size,
             gradient_accumulation_steps=gradient_accumulation_steps,
-            warmup_ratio=warmup_ratio,
+            warmup_steps=warmup_steps,
             num_train_epochs=num_epochs,
             learning_rate=learning_rate,
+            # dataloader_num_workers=16,
             fp16=True,
             logging_steps=1,
             optim="adamw_torch_fused", # changed from "adamw_torch"
             evaluation_strategy="steps" if val_set_size > 0 else "no",
             save_strategy="steps",
             eval_steps=200 if val_set_size > 0 else None,
-            save_steps=200,
-            lr_scheduler_type=lr_scheduler,
+            save_steps=1000,
+            lr_scheduler_type="cosine",
             output_dir=output_dir,
             save_total_limit=2,
             load_best_model_at_end=True if val_set_size > 0 else False,
@@ -293,7 +293,7 @@ def train(
         data_collator=transformers.DataCollatorForSeq2Seq(
             tokenizer, pad_to_multiple_of=8, return_tensors="pt", padding=True
         ),
-        #callbacks=[SavePeftModelCallback, LoadBestPeftModelCallback], # ONLY USE LoadBestPeftModelCallback if val_set_size > 0
+        # callbacks=[SavePeftModelCallback, LoadBestPeftModelCallback], # ONLY USE LoadBestPeftModelCallback if val_set_size > 0
     )
     model.config.use_cache = False
 
@@ -303,14 +303,10 @@ def train(
     trainer.train(resume_from_checkpoint=resume_from_checkpoint)
 
     model.save_pretrained(output_dir)
-    #model.base_model.save_pretrained(output_dir)
+    # model.base_model.save_pretrained(output_dir)
     pytorch_model_path = os.path.join(output_dir, "pytorch_model.bin")
     torch.save({}, pytorch_model_path)
     tokenizer.save_pretrained(output_dir)
-
-    print(
-        "\n If there's a warning about missing keys above, please disregard :)"
-    )
 
 
 if __name__ == "__main__":
