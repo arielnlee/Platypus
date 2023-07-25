@@ -115,9 +115,6 @@ Gradient accumulation steps = global_batch_size / micro_batch_size / num_gpus = 
 If your model **cannot** fit on the memory of each GPU, please use the alternative fine-tuning option below to take advantage of model parallelism.
 
 ```bash
-export WORLD_SIZE=1
-export CUDA_VISIBLE_DEVICES=0,1,2,3
-
 python finetune.py \
     --base_model './llama30B_hf' \
     --data_path './train_final.json' \
