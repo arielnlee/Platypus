@@ -69,7 +69,7 @@ pip3 install -e .
 Finally, run the following:
 
 ```
-python3 -m fastchat.serve.cli --model-path lilloukas/Platypus-30B --conv_template alpaca
+python3 -m fastchat.serve.cli --model-path garage-bAInd/Platypus-30B --conv_template alpaca
 ```
 
 ## Local Setup
@@ -134,6 +134,34 @@ python finetune.py \
     --lora_target_modules '[q_proj,k_proj,v_proj,o_proj]' \
     --train_on_inputs False \
     --group_by_length False
+```
+## Reproducing Evaluation Results
+Install LM Evaluation Harness:
+```
+git clone https://github.com/EleutherAI/lm-evaluation-harness
+cd lm-evaluation-harness
+pip install -e .
+```
+Each task was evaluated on a single A100 80GB GPU.
+
+ARC:
+```
+python main.py --model hf-causal-experimental --model_args pretrained=garage-bAIdnd/Platypus-30B --tasks arc_challenge --batch_size 1 --no_cache --write_out --output_path results/Platypus-30B/arc_challenge_25shot.json --device cuda --num_fewshot 25
+```
+
+HellaSwag:
+```
+python main.py --model hf-causal-experimental --model_args pretrained=garage-bAIdnd/Platypus-30B --tasks hellaswag --batch_size 1 --no_cache --write_out --output_path results/Platypus-30B/hellaswag_10shot.json --device cuda --num_fewshot 10
+```
+
+MMLU:
+```
+python main.py --model hf-causal-experimental --model_args pretrained=garage-bAIdnd/Platypus-30B --tasks hendrycksTest-* --batch_size 1 --no_cache --write_out --output_path results/Platypus-30B/mmlu_5shot.json --device cuda --num_fewshot 5
+```
+
+TruthfulQA:
+```
+python main.py --model hf-causal-experimental --model_args pretrained=garage-bAIdnd/Platypus-30B --tasks truthfulqa_mc --batch_size 1 --no_cache --write_out --output_path results/Platypus-30B/truthfulqa_0shot.json --device cuda
 ```
 ## Inference (`inference.py`)
 
