@@ -1,5 +1,5 @@
 bitsandbytes==0.37.2
-accelerate
+accelerate==0.21.0
 appdirs
 loralib
 black

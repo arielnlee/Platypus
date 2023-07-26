@@ -1,11 +1,11 @@
-torchrun --nproc_per_node=3 --master_port=1234 finetune.py \
-    --base_model meta-llama/Llama-2-13b-hf \
-    --data-path ./cot_set.json \
-    --output_dir ./llama2-platypus-13b \
-    --batch_size 96 \
-    --micro_batch_size 4 \
+accelerate launch finetune.py \
+    --base_model meta-llama/Llama-2-70b-hf \
+    --data-path ./merged_and_cleaned3.json \
+    --output_dir ./llama2-platypus-70b \
+    --batch_size 12 \
+    --micro_batch_size 1 \
     --num_epochs 1 \
-    --learning_rate 0.0003 \
+    --learning_rate 0.0002 \
     --cutoff_len 4096 \
     --val_set_size 0 \
     --lora_r 16 \
@@ -16,5 +16,5 @@ torchrun --nproc_per_node=3 --master_port=1234 finetune.py \
     --add_eos_token False \
     --group_by_length False \
     --prompt_template_name alpaca \
-    --lr_scheduler 'cosine' \
+    --lr_scheduler 'linear' \
     --warmup_steps 100

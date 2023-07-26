@@ -69,7 +69,7 @@ def train(
     cutoff_len: int = 4096,
     val_set_size: int = 0,
     lr_scheduler: str = "cosine",
-    warmup_steps: int = 100,
+    warmup_steps: int = 100, 
     # lora hyperparams
     lora_r: int = 16,
     lora_alpha: int = 16,
@@ -90,7 +90,7 @@ def train(
 ):
     if int(os.environ.get("LOCAL_RANK", 0)) == 0:
         print(
-            f"Training Alpaca-LoRA model with params:\n"
+            f"Params using prompt template {prompt_template_name}:\n"
             f"base_model: {base_model}\n"
             f"data_path: {data_path}\n"
             f"output_dir: {output_dir}\n"
@@ -114,7 +114,6 @@ def train(
             f"wandb_watch: {wandb_watch}\n"
             f"wandb_log_model: {wandb_log_model}\n"
             f"resume_from_checkpoint: {resume_from_checkpoint or False}\n"
-            f"prompt template: {prompt_template_name}\n"
         )
     assert (
         base_model
@@ -154,7 +153,7 @@ def train(
     bos = tokenizer.bos_token_id
     eos = tokenizer.eos_token_id
     pad = tokenizer.pad_token_id
-    print("pre-trained model's BOS EOS and PAD token id:",bos,eos,pad," => It should be 1,2,none")
+    print("pre-trained model's BOS EOS and PAD token id:",bos,eos,pad," => It should be 1 2 None")
 
     tokenizer.pad_token_id = 0  # unk. we want this to be different from the eos token
     tokenizer.padding_side = "right"
@@ -270,18 +269,18 @@ def train(
         args=transformers.TrainingArguments(
             per_device_train_batch_size=micro_batch_size,
             gradient_accumulation_steps=gradient_accumulation_steps,
-            warmup_steps=warmup_steps,
+            warmup_ratio=0.03,
             num_train_epochs=num_epochs,
-            learning_rate=learning_rate,
+            learning_rate=0.0002,
             # dataloader_num_workers=16,
             fp16=True,
             logging_steps=1,
-            optim="adamw_torch_fused", # changed from "adamw_torch"
+            optim="adamw_torch",
             evaluation_strategy="steps" if val_set_size > 0 else "no",
             save_strategy="steps",
             eval_steps=200 if val_set_size > 0 else None,
             save_steps=1000,
-            lr_scheduler_type="cosine",
+            lr_scheduler_type="constant_with_warmup",
             output_dir=output_dir,
             save_total_limit=2,
             load_best_model_at_end=True if val_set_size > 0 else False,
