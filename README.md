@@ -1,6 +1,6 @@
 # 🥳 Platypus
 
-The Platypus models are a series of fine-tuned variants based on the LLaMA and Llama 2 transformer architectures. Platty takes advantage of [LoRA](https://arxiv.org/pdf/2106.09685.pdf). 
+The Platypus models are a series of fine-tuned variants based on the LLaMA and LLaMa 2 transformer architectures. Platty takes advantage of [LoRA](https://arxiv.org/pdf/2106.09685.pdf). 
 
 All models available via HuggingFace: [`garage-bAInd`](https://huggingface.co/garage-bAInd)
 
