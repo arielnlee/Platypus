@@ -1,54 +1,8 @@
-# 🥳 Platypus-30B
+# 🥳 Platypus
 
-Platypus-30B is an instruction fine-tuned model based on the LLaMA-30B transformer architecture. Platty takes advantage of [LoRA](https://arxiv.org/pdf/2106.09685.pdf). 
+The Platypus models are a series of fine-tuned variants based on the LLaMA and Llama 2 transformer architectures. Platty takes advantage of [LoRA](https://arxiv.org/pdf/2106.09685.pdf). 
 
-Availble via HuggingFace: [`garage-bAInd/Platypus-30B`](https://huggingface.co/garage-bAInd/Platypus-30B)
-
-| Metric                | Value |
-|-----------------------|-------|
-| MMLU (5-shot)         | 64.2  |
-| ARC (25-shot)         | 64.6  |
-| HellaSwag (10-shot)   | 84.3  |
-| TruthfulQA (0-shot)   | 45.8  |
-| Avg.                  | 64.7 💥 | 
-
-
-We use state-of-the-art EleutherAI [Language Model Evaluation Harness](https://github.com/EleutherAI/lm-evaluation-harness) to run the benchmark tests above.
-
-Platypus-30B acheives an accuracy of 70.8 on the [ReClor](https://whyu.me/reclor/) test set.
-
-We have also successfully run a fine-tuning of LlaMa-65B using this repository. 
-
-## Platty Merges
-
-### SuperPlatty-30B
-
-SuperPlatty-30B is a merge of [`garage-bAInd/Platypus-30B`](https://huggingface.co/garage-bAInd/Platypus-30B) and [`kaiokendev/SuperCOT-LoRA`](https://huggingface.co/kaiokendev/SuperCOT-LoRA). 
-
-Available via HuggingFace: [`garage-bAInd/SuperPlatty-30B`](https://huggingface.co/garage-bAInd/SuperPlatty-30B)
-
-| Metric                | Value |
-|-----------------------|-------|
-| MMLU (5-shot)         | 62.6  |
-| ARC (25-shot)         | 66.1  |
-| HellaSwag (10-shot)   | 83.9  |
-| TruthfulQA (0-shot)   | 54.0  |
-| Avg.                  | 66.6  | 
-
-### GPlatty-30B
-
-GPlatty-30B is a merge of [`garage-bAInd/Platypus-30B`](https://huggingface.co/garage-bAInd/Platypus-30B) and [`chansung/gpt4-alpaca-lora-30b`](https://huggingface.co/chansung/gpt4-alpaca-lora-30b). 
-
-Available via HuggingFace: [`garage-bAInd/GPlatty-30B`](https://huggingface.co/garage-bAInd/GPlatty-30B)
-
-| Metric                | Value |
-|-----------------------|-------|
-| MMLU (5-shot)         | 63.6  |
-| ARC (25-shot)         | 66    |
-| HellaSwag (10-shot)   | 84.8  |
-| TruthfulQA (0-shot)   | 53.8  |
-| Avg.                  | 67 🔥 | 
-
+All models available via HuggingFace: [`garage-bAInd`](https://huggingface.co/garage-bAInd)
 
 ## CLI 
 
@@ -137,6 +91,7 @@ Install LM Evaluation Harness:
 ```
 git clone https://github.com/EleutherAI/lm-evaluation-harness
 cd lm-evaluation-harness
+git checkout b281b0921b636bc36ad05c0b0b0763bd6dd43463 # The commit used by the Open LLM Leaderboard
 pip install -e .
 ```
 Each task was evaluated on a single A100 80GB GPU.
