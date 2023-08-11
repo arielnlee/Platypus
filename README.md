@@ -1,6 +1,6 @@
 # 🥳 Platypus
 
-The Platypus models are a series of fine-tuned variants based on the LLaMA and Llama 2 transformer architectures. Platty takes advantage of [LoRA](https://arxiv.org/pdf/2106.09685.pdf). 
+The Platypus models are a series of fine-tuned variants based on the LLaMA and LLaMa 2 transformer architectures. Platty takes advantage of [LoRA](https://arxiv.org/pdf/2106.09685.pdf). 
 
 All models available via HuggingFace: [`garage-bAInd`](https://huggingface.co/garage-bAInd)
 
@@ -42,7 +42,7 @@ This repository is multi-GPU friendly, and provides code to use model or data pa
 
 Run `fine-tuning.sh`.
 
-Note: The script above uses `torchrun` for data parallelism. PyTorch is not in `requirements.txt` since technically you can run fine-tuning without it. To use `fine-tuning.sh`, please install [PyTorch](https://pytorch.org/get-started/locally/). We recommend using `torchrun` and PyTorch 2.0+ for speed + `torch.compile`.
+Note: The script above uses `torchrun` for data parallelism. PyTorch is not in `requirements.txt` since technically you can run fine-tuning without it. To use `fine-tuning.sh`, please install [PyTorch](https://pytorch.org/get-started/locally/). We recommend using `torchrun` and PyTorch 2.0+ for speed + `torch.compile`. If you do not install pytorch, please take time to comment out any torch related lines in the scirpts.
 
 Hyperparameters used to fine-tune Platypus-30B:
 
@@ -98,22 +98,22 @@ Each task was evaluated on a single A100 80GB GPU.
 
 ARC:
 ```
-python main.py --model hf-causal-experimental --model_args pretrained=garage-bAIdnd/Platypus-30B --tasks arc_challenge --batch_size 1 --no_cache --write_out --output_path results/Platypus-30B/arc_challenge_25shot.json --device cuda --num_fewshot 25
+python main.py --model hf-causal-experimental --model_args pretrained=garage-bAInd/Platypus-30B --tasks arc_challenge --batch_size 1 --no_cache --write_out --output_path results/Platypus-30B/arc_challenge_25shot.json --device cuda --num_fewshot 25
 ```
 
 HellaSwag:
 ```
-python main.py --model hf-causal-experimental --model_args pretrained=garage-bAIdnd/Platypus-30B --tasks hellaswag --batch_size 1 --no_cache --write_out --output_path results/Platypus-30B/hellaswag_10shot.json --device cuda --num_fewshot 10
+python main.py --model hf-causal-experimental --model_args pretrained=garage-bAInd/Platypus-30B --tasks hellaswag --batch_size 1 --no_cache --write_out --output_path results/Platypus-30B/hellaswag_10shot.json --device cuda --num_fewshot 10
 ```
 
 MMLU:
 ```
-python main.py --model hf-causal-experimental --model_args pretrained=garage-bAIdnd/Platypus-30B --tasks hendrycksTest-* --batch_size 1 --no_cache --write_out --output_path results/Platypus-30B/mmlu_5shot.json --device cuda --num_fewshot 5
+python main.py --model hf-causal-experimental --model_args pretrained=garage-bAInd/Platypus-30B --tasks hendrycksTest-* --batch_size 1 --no_cache --write_out --output_path results/Platypus-30B/mmlu_5shot.json --device cuda --num_fewshot 5
 ```
 
 TruthfulQA:
 ```
-python main.py --model hf-causal-experimental --model_args pretrained=garage-bAIdnd/Platypus-30B --tasks truthfulqa_mc --batch_size 1 --no_cache --write_out --output_path results/Platypus-30B/truthfulqa_0shot.json --device cuda
+python main.py --model hf-causal-experimental --model_args pretrained=garage-bAInd/Platypus-30B --tasks truthfulqa_mc --batch_size 1 --no_cache --write_out --output_path results/Platypus-30B/truthfulqa_0shot.json --device cuda
 ```
 ## Inference (`inference.py`)
 

@@ -74,7 +74,7 @@ def train(
     lora_r: int = 16,
     lora_alpha: int = 16,
     lora_dropout: float = 0.05,
-    # from peft docs: ["q_proj", "k_proj", "v_proj", "o_proj", "fc_in", "fc_out", "wte"]
+    # from peft docs: ["q_proj", "k_proj", "v_proj", "o_proj", "fc_in", "fc_out", "wte", "gate_proj", "down_proj", "up_proj"]
     lora_target_modules: List[str] = ["q_proj", "k_proj", "v_proj", "o_proj"], # if pretrained model < 30B params, remove modules
     # llm hyperparams
     train_on_inputs: bool = False,  # if False, masks out inputs in loss
@@ -269,9 +269,9 @@ def train(
         args=transformers.TrainingArguments(
             per_device_train_batch_size=micro_batch_size,
             gradient_accumulation_steps=gradient_accumulation_steps,
-            warmup_ratio=0.03,
+            warmup_steps=warmup_steps,
             num_train_epochs=num_epochs,
-            learning_rate=0.0002,
+            learning_rate=learning_rate,
             # dataloader_num_workers=16,
             fp16=True,
             logging_steps=1,

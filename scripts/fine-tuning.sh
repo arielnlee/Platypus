@@ -1,20 +1,20 @@
-accelerate launch finetune.py \
+torchrun --nproc_per_node=8 --master_port=1234 finetune.py \
     --base_model meta-llama/Llama-2-70b-hf \
-    --data-path ./merged_and_cleaned3.json \
+    --data-path ./final_data.json \
     --output_dir ./llama2-platypus-70b \
-    --batch_size 12 \
+    --batch_size 16 \
     --micro_batch_size 1 \
     --num_epochs 1 \
-    --learning_rate 0.0002 \
+    --learning_rate 0.0003 \
     --cutoff_len 4096 \
     --val_set_size 0 \
     --lora_r 16 \
     --lora_alpha 16 \
     --lora_dropout 0.05 \
-    --lora_target_modules '[q_proj, k_proj, v_proj, o_proj]' \
+    --lora_target_modules '[gate_proj, down_proj, up_proj, o_proj]' \
     --train_on_inputs False \
     --add_eos_token False \
     --group_by_length False \
     --prompt_template_name alpaca \
-    --lr_scheduler 'linear' \
+    --lr_scheduler 'cosine' \
     --warmup_steps 100
