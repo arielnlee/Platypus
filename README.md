@@ -9,7 +9,7 @@ The Platypus models are a series of fine-tuned variants based on the LLaMA and L
 All models and dataset available via HuggingFace: [`garage-bAInd`](https://huggingface.co/garage-bAInd)
 
 ## Updates
-**8/14/23**: We have cleaned up our pipeline and added data refinement / similarity code.
+**8/14/23**: We have cleaned up our pipeline and added data refinement and similarity code. Within in the next few days we'll have a script to reproduce our exact dataset from 11 open-source datasets.
 
 **8/13/23**: An unquantized GPU chatbot of OpenOrca-Platypus2-13B, our most recent collab, is available via Hugging Face spaces, courtesy of OpenOrca: [Chat now!](https://huggingface.co/spaces/Open-Orca/OpenOrca-Platypus2-13B)
 
@@ -118,7 +118,7 @@ While we are experimenting on better and alternative ways to merge (stay tuned!)
 
 We used keyword search to find STEM and logic questions in the 11 open-source datasets that make up [Open-Platypus](https://huggingface.co/datasets/garage-bAInd/Open-Platypus). Then, to remove duplicates and redundancy, we perform a cosine similarity check of the questions using SentenceTransformers embeddings. Lastly, we do a similarity check to remove any questions from our training set that are too similiar to the test set.
 
-You can access all of the related code in the data_pipeline folder of this repo.
+You can access all of the related code in the `data_pipeline` folder of this repo.
 
 ## Reproducing Benchmark Eval Results
 Install LM Evaluation Harness:
