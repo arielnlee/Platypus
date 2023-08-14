@@ -5,7 +5,6 @@ from typing import List
 import fire
 import torch
 import transformers
-import gc
 from datasets import load_dataset
 
 from transformers import TrainerCallback, TrainingArguments, TrainerState, TrainerControl
@@ -75,7 +74,7 @@ def train(
     lora_alpha: int = 16,
     lora_dropout: float = 0.05,
     # from peft docs: ["q_proj", "k_proj", "v_proj", "o_proj", "fc_in", "fc_out", "wte", "gate_proj", "down_proj", "up_proj"]
-    lora_target_modules: List[str] = ["q_proj", "k_proj", "v_proj", "o_proj"], # if pretrained model < 30B params, remove modules
+    lora_target_modules: List[str] = ["gate_proj", "down_proj", "up_proj"],
     # llm hyperparams
     train_on_inputs: bool = False,  # if False, masks out inputs in loss
     add_eos_token: bool = False,
@@ -280,7 +279,7 @@ def train(
             save_strategy="steps",
             eval_steps=200 if val_set_size > 0 else None,
             save_steps=1000,
-            lr_scheduler_type="constant_with_warmup",
+            lr_scheduler_type=lr_scheduler,
             output_dir=output_dir,
             save_total_limit=2,
             load_best_model_at_end=True if val_set_size > 0 else False,
@@ -310,5 +309,4 @@ def train(
 
 if __name__ == "__main__":
     torch.cuda.empty_cache() 
-    gc.collect()
     fire.Fire(train)

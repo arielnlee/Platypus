@@ -9,6 +9,9 @@ fire
 git+https://github.com/huggingface/peft.git@e536616888d51b453ed354a6f1e243fecb02ea08
 transformers>=4.31.0
 sentencepiece
-gradio
 wandb
 scipy
+numpy
+sentence_transformers
+scikit-learn
+pandas

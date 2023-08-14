@@ -11,7 +11,7 @@ torchrun --nproc_per_node=8 --master_port=1234 finetune.py \
     --lora_r 16 \
     --lora_alpha 16 \
     --lora_dropout 0.05 \
-    --lora_target_modules '[gate_proj, down_proj, up_proj, o_proj]' \
+    --lora_target_modules '[gate_proj, down_proj, up_proj]' \
     --train_on_inputs False \
     --add_eos_token False \
     --group_by_length False \

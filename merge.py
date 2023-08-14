@@ -11,7 +11,6 @@ def get_args():
     parser.add_argument("--peft_model_path", type=str)
     parser.add_argument("--output_dir", type=str)
     parser.add_argument("--device", type=str, default="auto")
-    parser.add_argument("--push_to_hub", action="store_true")
 
     return parser.parse_args()
 
@@ -41,15 +40,6 @@ def main():
     model.save_pretrained(f"{args.output_dir}")
     tokenizer.save_pretrained(f"{args.output_dir}")
     print(f"Model saved to {args.output_dir}")
-    
-    # if args.push_to_hub:
-    #     print(f"Saving to hub ...")
-    #     model.push_to_hub(f"{args.output_dir}", use_temp_dir=False)
-    #     tokenizer.push_to_hub(f"{args.output_dir}", use_temp_dir=False)
-    # else:
-    #     model.save_pretrained(f"{args.output_dir}")
-    #     tokenizer.save_pretrained(f"{args.output_dir}")
-    #     print(f"Model saved to {args.output_dir}")
 
 if __name__ == "__main__" :
     main()

@@ -117,7 +117,6 @@ def evaluate(prompter, prompts, model, tokenizer):
 
 
 if __name__ == "__main__":
-    #torch.cuda.empty_cache()
-    #gc.collect()
+    torch.cuda.empty_cache()
     fire.Fire(main)
 
