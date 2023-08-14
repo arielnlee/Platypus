@@ -1,7 +1,8 @@
 # Platypus: Quick, Cheap, and Powerful Refinement of LLMs (https://platypus-llm.github.io)
 
-<img src="./assets/Best_Platty.png" alt="Platypus" width="300" style="border-radius: 50%; display: block; margin-left: auto; margin-right: auto;">
-<br>
+<p align="center">
+<img src="./assets/Best_Platty.png" alt="Platypus" width="300"/>
+</p>
 
 The Platypus models are a series of fine-tuned variants based on the LLaMA and LLaMa-2 transformer architectures. Platypus takes advantage of [LoRA](https://arxiv.org/pdf/2106.09685.pdf) and [PEFT](https://github.com/huggingface/peft). 
 
@@ -12,9 +13,9 @@ All models and dataset available via HuggingFace: [`garage-bAInd`](https://huggi
 
 **8/13/23**: An unquantized GPU chatbot of OpenOrca-Platypus2-13B, our most recent collab, is available via Hugging Face spaces, courtesy of OpenOrca: [Chat now!](https://huggingface.co/spaces/Open-Orca/OpenOrca-Platypus2-13B)
 
-
-<img src="./assets/orca_platty.jpeg" alt="Platypus" width="120" style="border-radius: 50%; display: block; margin-left: auto; margin-right: auto;">
-<br>
+<p align="center">
+<img src="./assets/orca_platty.jpeg" alt="Platypus" width="120"/>
+</p>
 
 **8/11/23**: Our [paper](https://platypus-llm.github.io/Platypus.pdf) and [project website](https://platypus-llm.github.io) have been released!
 
