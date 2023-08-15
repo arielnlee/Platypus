@@ -4,7 +4,7 @@
 <img src="./assets/Best_Platty.png" alt="Platypus" width="300"/>
 </p>
 
-The Platypus models are a series of fine-tuned variants based on the LLaMA and LLaMa-2 transformer architectures. Platypus takes advantage of [LoRA](https://arxiv.org/pdf/2106.09685.pdf) and [PEFT](https://github.com/huggingface/peft). 
+The Platypus models are a series of fine-tuned and merged variants based on the LLaMA and LLaMa-2 transformer architectures. Platypus takes advantage of [LoRA](https://arxiv.org/pdf/2106.09685.pdf) and [PEFT](https://github.com/huggingface/peft). 
 
 All models and dataset available via HuggingFace: [`garage-bAInd`](https://huggingface.co/garage-bAInd)
 
@@ -17,7 +17,7 @@ All models and dataset available via HuggingFace: [`garage-bAInd`](https://huggi
 <img src="./assets/orca_platty.jpeg" alt="Platypus" width="120"/>
 </p>
 
-**8/11/23**: Our [paper](https://platypus-llm.github.io/Platypus.pdf) and [project website](https://platypus-llm.github.io) have been released!
+**8/11/23**: Our [paper](https://arxiv.org/abs/2308.07317) and [project website](https://platypus-llm.github.io) have been released!
 
 ## CLI 
 
@@ -110,7 +110,7 @@ python finetune.py \
 
 Once you've completed a fine-tuning, use `merge.sh` to merge the LoRA weights back into the base LLaMa model (or base model of your choice) for export to HuggingFace format.
 
-While we are experimenting on better and alternative ways to merge (stay tuned!), our current merging process relies on the basic linear merge provided by PEFT. Before we fine-tune, we search for possible models to merge with and the datasets used to create them (to the best of our ability). The success of our LoRA merges stems from using the right data. Our most successful merges have little to no overlap in fine-tuning data. For example, GPlatty-30B is a merge of Platypus-30B and gpt4-alpaca-lora-30b. We saw a 2% jump in accuracy for GPlatty, and the datasets used to fine-tune the aforementioned two LoRA-based models had very low similarity scores. Please see [our paper](https://platypus-llm.github.io/Platypus.pdf) for additional information. 
+While we are experimenting on better and alternative ways to merge (stay tuned!), our current merging process relies on the basic linear merge provided by PEFT. Before we fine-tune, we search for possible models to merge with and the datasets used to create them (to the best of our ability). The success of our LoRA merges stems from using the right data. Our most successful merges have little to no overlap in fine-tuning data. For example, GPlatty-30B is a merge of Platypus-30B and gpt4-alpaca-lora-30b. We saw a 2% jump in accuracy for GPlatty, and the datasets used to fine-tune the aforementioned two LoRA-based models had very low similarity scores. Please see [our paper](https://arxiv.org/abs/2308.07317) for additional information. 
 
 **NOTE:** If you encounter any errors while merging, please try uninstalling bitsandbytes and peft, then reinstalling with the newest versions (peft should always be installed from source).
 
@@ -157,9 +157,9 @@ This a basic example script for running inference directly using fine-tuned adap
 
 ```
 @article{platypus2023,
-  title={Platypus: Quick, Cheap, and Powerful Refinement of LLMs},
-  author={Ariel N. Lee and Cole J. Hunter and Nataniel Ruiz},
-  booktitle={arXiv coming soon!},
-  year={2023}
+    title={Platypus: Quick, Cheap, and Powerful Refinement of LLMs}, 
+    author={Ariel N. Lee and Cole J. Hunter and Nataniel Ruiz},
+    booktitle={arXiv preprint arxiv:2308.07317},
+    year={2023}
 }
 ```
