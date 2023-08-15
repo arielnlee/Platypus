@@ -21,7 +21,7 @@ All models and dataset available via HuggingFace: [`garage-bAInd`](https://huggi
 
 ## CLI 
 
-[Fastchat](https://github.com/lm-sys/FastChat) provides a simple setup for those interested in running the model. Afrer downloading the model through HuggingFace, clone the Fastchat repository:
+[Fastchat](https://github.com/lm-sys/FastChat) provides a simple setup for those interested in running the model. After downloading the model through HuggingFace, clone the Fastchat repository:
 
 ```
 git clone https://github.com/lm-sys/FastChat.git
