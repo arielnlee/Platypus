@@ -9,6 +9,9 @@ The Platypus models are a series of fine-tuned and merged variants based on the 
 All models and dataset available via HuggingFace: [`garage-bAInd`](https://huggingface.co/garage-bAInd)
 
 ## Updates
+
+**8/21/23**: If you're fine-tuning LLaMa-2 7B, please add `bf16=True` and change `fp16=False` in the HF trainer. LLaMa-1 7B works as is. **This only applies to LLaMa-2 7B.** Additionally, if you are using 1 GPU, please change `ddp_find_unused_paramters=False` in the HF trainer. We will be updating the fine-tuning script to handle these changes automatically. 
+
 **8/14/23**: We have cleaned up our pipeline and added data refinement and similarity code. Within in the next few days we'll have a script to reproduce our exact dataset from 11 open-source datasets.
 
 **8/13/23**: An unquantized GPU chatbot of OpenOrca-Platypus2-13B, our most recent collab, is available via Hugging Face spaces, courtesy of OpenOrca: [Chat now!](https://huggingface.co/spaces/Open-Orca/OpenOrca-Platypus2-13B)
@@ -21,7 +24,7 @@ All models and dataset available via HuggingFace: [`garage-bAInd`](https://huggi
 
 ## CLI 
 
-[Fastchat](https://github.com/lm-sys/FastChat) provides a simple setup for those interested in running the model. Afrer downloading the model through HuggingFace, clone the Fastchat repository:
+[Fastchat](https://github.com/lm-sys/FastChat) provides a simple setup for those interested in running the model. After downloading the model through HuggingFace, clone the Fastchat repository:
 
 ```
 git clone https://github.com/lm-sys/FastChat.git
