@@ -4,10 +4,16 @@ from typing import List
 
 import fire
 import torch
-import transformers
 from datasets import load_dataset
 
-from transformers import TrainerCallback, TrainingArguments, TrainerState, TrainerControl
+from transformers import (
+    Trainer, 
+    TrainerCallback, 
+    TrainingArguments, 
+    TrainerState, 
+    TrainerControl, 
+    DataCollatorForSeq2Seq
+)
 from transformers.trainer_utils import PREFIX_CHECKPOINT_DIR
 
 from peft import (
@@ -69,6 +75,10 @@ def train(
     val_set_size: int = 0,
     lr_scheduler: str = "cosine",
     warmup_steps: int = 100, 
+    dataloader_num_workers: int = 8,
+    # mixed precision hyperparams
+    fp16: bool = True,
+    bf16: bool = False,
     # lora hyperparams
     lora_r: int = 16,
     lora_alpha: int = 16,
@@ -79,14 +89,25 @@ def train(
     train_on_inputs: bool = False,  # if False, masks out inputs in loss
     add_eos_token: bool = False,
     group_by_length: bool = False,  # faster, but produces an odd training loss curve
+    # loggimg params
+    logging_steps: int = 1,
+    # evaluation params
+    eval_steps: int = 200,
+    # save params
+    save_steps: int = 1000,
+    save_strategy: str = "steps",
+    save_total_limit: int = 2,
     # wandb params
     wandb_project: str = "",
     wandb_run_name: str = "",
     wandb_watch: str = "",  # options: false | gradients | all
     wandb_log_model: str = "",  # options: false | true
     resume_from_checkpoint: str = None,  # either training checkpoint or final adapter
-    prompt_template_name: str = "alpaca"
+    prompt_template_name: str = "alpaca",
+    # misc params
+    seed: int = 42
 ):
+    assert not (fp16 and bf16), "only one of fp16 or bf16 options has to be defined"
     if int(os.environ.get("LOCAL_RANK", 0)) == 0:
         print(
             f"Params using prompt template {prompt_template_name}:\n"
@@ -101,6 +122,8 @@ def train(
             f"val_set_size: {val_set_size}\n"
             f"lr_scheduler: {lr_scheduler}\n"
             f"warmup_steps: {warmup_steps}\n"
+            f"fp16 {fp16}\n"
+            f"bf16 {bf16}\n"
             f"lora_r: {lora_r}\n"
             f"lora_alpha: {lora_alpha}\n"
             f"lora_dropout: {lora_dropout}\n"
@@ -113,6 +136,7 @@ def train(
             f"wandb_watch: {wandb_watch}\n"
             f"wandb_log_model: {wandb_log_model}\n"
             f"resume_from_checkpoint: {resume_from_checkpoint or False}\n"
+            f"seed: {seed}"
         )
     assert (
         base_model
@@ -136,6 +160,8 @@ def train(
     # Only overwrite environ if wandb param passed
     if len(wandb_project) > 0:
         os.environ["WANDB_PROJECT"] = wandb_project
+    if len(wandb_run_name) > 0:
+        os.environ["WANDB_NAME"] = wandb_run_name
     if len(wandb_watch) > 0:
         os.environ["WANDB_WATCH"] = wandb_watch
     if len(wandb_log_model) > 0:
@@ -144,8 +170,9 @@ def train(
     model = LlamaForCausalLM.from_pretrained(
         base_model,
         load_in_8bit=True,
-        torch_dtype=torch.float16,
-        device_map=device_map)
+        torch_dtype='auto',
+        device_map=device_map
+    )
 
     tokenizer = LlamaTokenizer.from_pretrained(base_model)
     
@@ -244,7 +271,7 @@ def train(
 
     if val_set_size > 0:
         train_val = data["train"].train_test_split(
-            test_size=val_set_size, shuffle=True, seed=42
+            test_size=val_set_size, shuffle=True, seed=seed
         )
         train_data = (
             train_val["train"].shuffle().map(generate_and_tokenize_prompt)
@@ -261,34 +288,35 @@ def train(
         model.is_parallelizable = True
         model.model_parallel = True
 
-    trainer = transformers.Trainer(
+    trainer = Trainer(
         model=model,
         train_dataset=train_data,
         eval_dataset=val_data,
-        args=transformers.TrainingArguments(
+        args=TrainingArguments(
             per_device_train_batch_size=micro_batch_size,
             gradient_accumulation_steps=gradient_accumulation_steps,
             warmup_steps=warmup_steps,
             num_train_epochs=num_epochs,
             learning_rate=learning_rate,
-            # dataloader_num_workers=16,
-            fp16=True,
-            logging_steps=1,
+            dataloader_num_workers=dataloader_num_workers,
+            fp16=fp16,
+            bf16=bf16,
+            logging_steps=logging_steps,
             optim="adamw_torch",
             evaluation_strategy="steps" if val_set_size > 0 else "no",
-            save_strategy="steps",
-            eval_steps=200 if val_set_size > 0 else None,
-            save_steps=1000,
+            eval_steps=eval_steps if val_set_size > 0 else None,
+            save_steps=save_steps,
+            save_strategy=save_strategy,
             lr_scheduler_type=lr_scheduler,
             output_dir=output_dir,
-            save_total_limit=2,
+            save_total_limit=save_total_limit,
             load_best_model_at_end=True if val_set_size > 0 else False,
             ddp_find_unused_parameters=False if ddp else None,
             group_by_length=group_by_length,
             report_to="wandb" if use_wandb else None,
-            run_name=wandb_run_name if use_wandb else None,
+            run_name=os.environ.get("WANDB_NAME") if use_wandb else None,
         ),
-        data_collator=transformers.DataCollatorForSeq2Seq(
+        data_collator=DataCollatorForSeq2Seq(
             tokenizer, pad_to_multiple_of=8, return_tensors="pt", padding=True
         ),
         # callbacks=[SavePeftModelCallback, LoadBestPeftModelCallback], # ONLY USE LoadBestPeftModelCallback if val_set_size > 0
