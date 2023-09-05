@@ -10,6 +10,9 @@ All models and dataset available via HuggingFace: [`garage-bAInd`](https://huggi
 
 ## Updates
 
+**9/5/23**: If you're fine-tuning LLaMa-2 7B, specify `--bf16 True` flag and `--fp16 True` otherwise. Added options of 
+changing evaluation and frequency saving and other misc hyperparameters.
+
 **8/21/23**: If you're fine-tuning LLaMa-2 7B, please add `bf16=True` and change `fp16=False` in the HF trainer. LLaMa-1 7B works as is. **This only applies to LLaMa-2 7B.** Additionally, if you are using 1 GPU, please change `ddp_find_unused_paramters=False` in the HF trainer. We will be updating the fine-tuning script to handle these changes automatically. 
 
 **8/14/23**: We have cleaned up our pipeline and added data refinement and similarity code. Within in the next few days we'll have a script to reproduce our exact dataset from 11 open-source datasets.
@@ -106,7 +109,8 @@ python finetune.py \
     --group_by_length False \
     --prompt_template_name alpaca \
     --lr_scheduler 'cosine' \
-    --warmup_steps 100
+    --warmup_steps 100 \
+    --bf16 True
 ```
 
 ## Merging
