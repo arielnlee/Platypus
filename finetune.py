@@ -7,19 +7,30 @@ import torch
 import transformers
 from datasets import load_dataset
 
-from transformers import TrainerCallback, TrainingArguments, TrainerState, TrainerControl
+from transformers import (
+    TrainerCallback,
+    TrainingArguments,
+    TrainerState,
+    TrainerControl,
+    TrainerCallback,
+    TrainerControl,
+    LlamaForCausalLM,
+    LlamaTokenizer,
+)
 from transformers.trainer_utils import PREFIX_CHECKPOINT_DIR
 
 from peft import (
     LoraConfig,
     get_peft_model,
     prepare_model_for_int8_training,
-    set_peft_model_state_dict
+    set_peft_model_state_dict,
 )
 
-from transformers import LlamaForCausalLM, LlamaTokenizer
+from datetime import datetime
 
 from utils.prompter import Prompter
+
+import wandb
 
 
 class SavePeftModelCallback(TrainerCallback):
@@ -30,7 +41,9 @@ class SavePeftModelCallback(TrainerCallback):
         control: TrainerControl,
         **kwargs,
     ):
-        checkpoint_folder = os.path.join(args.output_dir, f"{PREFIX_CHECKPOINT_DIR}-{state.global_step}")
+        checkpoint_folder = os.path.join(
+            args.output_dir, f"{PREFIX_CHECKPOINT_DIR}-{state.global_step}"
+        )
 
         kwargs["model"].save_pretrained(checkpoint_folder)
 
@@ -47,7 +60,9 @@ class LoadBestPeftModelCallback(TrainerCallback):
         control: TrainerControl,
         **kwargs,
     ):
-        print(f"Loading best peft model from {state.best_model_checkpoint} (score: {state.best_metric}).")
+        print(
+            f"Loading best peft model from {state.best_model_checkpoint} (score: {state.best_metric})."
+        )
         best_model_path = os.path.join(state.best_model_checkpoint, "adapter_model.bin")
         adapters_weights = torch.load(best_model_path)
         model = kwargs["model"]
@@ -57,7 +72,7 @@ class LoadBestPeftModelCallback(TrainerCallback):
 
 def train(
     # model/data params
-    base_model: str = "", 
+    base_model: str = "",
     data_path: str = "",
     output_dir: str = "",
     # training hyperparams
@@ -68,7 +83,7 @@ def train(
     cutoff_len: int = 4096,
     val_set_size: int = 0,
     lr_scheduler: str = "cosine",
-    warmup_steps: int = 100, 
+    warmup_steps: int = 100,
     # lora hyperparams
     lora_r: int = 16,
     lora_alpha: int = 16,
@@ -85,9 +100,9 @@ def train(
     wandb_watch: str = "",  # options: false | gradients | all
     wandb_log_model: str = "",  # options: false | true
     resume_from_checkpoint: str = None,  # either training checkpoint or final adapter
-    prompt_template_name: str = "alpaca"
+    prompt_template_name: str = "alpaca",
 ):
-    if int(os.environ.get("LOCAL_RANK", 0)) == 0:
+    if int(os.environ.get("LOCAL_RANK", 0)) == 0:  # check if this is the main process
         print(
             f"Params using prompt template {prompt_template_name}:\n"
             f"base_model: {base_model}\n"
@@ -114,6 +129,12 @@ def train(
             f"wandb_log_model: {wandb_log_model}\n"
             f"resume_from_checkpoint: {resume_from_checkpoint or False}\n"
         )
+
+        use_wandb = len(wandb_project) > 0
+        if use_wandb:
+            now_str = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+            run_name = f"{base_model}_batch-{batch_size}"
+            wandb.init(project=wandb_project, name=run_name, group=now_str)
     assert (
         base_model
     ), "Please specify a --base_model, e.g. --base_model='huggyllama/llama-7b'"
@@ -129,30 +150,22 @@ def train(
         gradient_accumulation_steps = gradient_accumulation_steps // world_size
         print("gradient_accumulation_steps: ", gradient_accumulation_steps)
 
-    # Check if parameter passed or if set within environ
-    use_wandb = len(wandb_project) > 0 or (
-        "WANDB_PROJECT" in os.environ and len(os.environ["WANDB_PROJECT"]) > 0
-    )
-    # Only overwrite environ if wandb param passed
-    if len(wandb_project) > 0:
-        os.environ["WANDB_PROJECT"] = wandb_project
-    if len(wandb_watch) > 0:
-        os.environ["WANDB_WATCH"] = wandb_watch
-    if len(wandb_log_model) > 0:
-        os.environ["WANDB_LOG_MODEL"] = wandb_log_model
-
     model = LlamaForCausalLM.from_pretrained(
-        base_model,
-        load_in_8bit=True,
-        torch_dtype=torch.float16,
-        device_map=device_map)
+        base_model, load_in_8bit=True, torch_dtype=torch.float16, device_map=device_map
+    )
 
     tokenizer = LlamaTokenizer.from_pretrained(base_model)
-    
+
     bos = tokenizer.bos_token_id
     eos = tokenizer.eos_token_id
     pad = tokenizer.pad_token_id
-    print("pre-trained model's BOS EOS and PAD token id:",bos,eos,pad," => It should be 1 2 None")
+    print(
+        "pre-trained model's BOS EOS and PAD token id:",
+        bos,
+        eos,
+        pad,
+        " => It should be 1 2 None",
+    )
 
     tokenizer.pad_token_id = 0  # unk. we want this to be different from the eos token
     tokenizer.padding_side = "right"
@@ -179,18 +192,17 @@ def train(
 
     def generate_and_tokenize_prompt(data_point):
         full_prompt = prompter.generate_prompt(
-            data_point["instruction"],
-            data_point["input"],
-            data_point["output"])
-        
+            data_point["instruction"], data_point["input"], data_point["output"]
+        )
+
         tokenized_full_prompt = tokenize(full_prompt)
         if not train_on_inputs:
             user_prompt = prompter.generate_prompt(
-                data_point["instruction"], data_point["input"])
-            
-            tokenized_user_prompt = tokenize(
-                user_prompt, add_eos_token=add_eos_token)
-            
+                data_point["instruction"], data_point["input"]
+            )
+
+            tokenized_user_prompt = tokenize(user_prompt, add_eos_token=add_eos_token)
+
             user_prompt_len = len(tokenized_user_prompt["input_ids"])
 
             if add_eos_token:
@@ -211,7 +223,8 @@ def train(
         target_modules=lora_target_modules,
         lora_dropout=lora_dropout,
         bias="none",
-        task_type="CAUSAL_LM")
+        task_type="CAUSAL_LM",
+    )
 
     model = get_peft_model(model, config)
 
@@ -229,9 +242,7 @@ def train(
             checkpoint_name = os.path.join(
                 resume_from_checkpoint, "adapter_model.bin"
             )  # only LoRA model - LoRA config above has to fit
-            resume_from_checkpoint = (
-                False  # So the trainer won't try loading its state
-            )
+            resume_from_checkpoint = False  # So the trainer won't try loading its state
         # The two files above have a different name depending on how they were saved, but are actually the same.
         if os.path.exists(checkpoint_name):
             print(f"Restarting from {checkpoint_name}")
@@ -246,12 +257,8 @@ def train(
         train_val = data["train"].train_test_split(
             test_size=val_set_size, shuffle=True, seed=42
         )
-        train_data = (
-            train_val["train"].shuffle().map(generate_and_tokenize_prompt)
-        )
-        val_data = (
-            train_val["test"].shuffle().map(generate_and_tokenize_prompt)
-        )
+        train_data = train_val["train"].shuffle().map(generate_and_tokenize_prompt)
+        val_data = train_val["test"].shuffle().map(generate_and_tokenize_prompt)
     else:
         train_data = data["train"].shuffle().map(generate_and_tokenize_prompt)
         val_data = None
@@ -272,12 +279,13 @@ def train(
             num_train_epochs=num_epochs,
             learning_rate=learning_rate,
             # dataloader_num_workers=16,
-            fp16=True,
-            logging_steps=1,
+            fp16=False,
+            bf16=True,
+            logging_steps=5,
             optim="adamw_torch",
             evaluation_strategy="steps" if val_set_size > 0 else "no",
             save_strategy="steps",
-            eval_steps=200 if val_set_size > 0 else None,
+            eval_steps=20 if val_set_size > 0 else None,
             save_steps=1000,
             lr_scheduler_type=lr_scheduler,
             output_dir=output_dir,
@@ -286,7 +294,6 @@ def train(
             ddp_find_unused_parameters=False if ddp else None,
             group_by_length=group_by_length,
             report_to="wandb" if use_wandb else None,
-            run_name=wandb_run_name if use_wandb else None,
         ),
         data_collator=transformers.DataCollatorForSeq2Seq(
             tokenizer, pad_to_multiple_of=8, return_tensors="pt", padding=True
@@ -306,7 +313,9 @@ def train(
     torch.save({}, pytorch_model_path)
     tokenizer.save_pretrained(output_dir)
 
+    wandb.finish()
+
 
 if __name__ == "__main__":
-    torch.cuda.empty_cache() 
+    torch.cuda.empty_cache()
     fire.Fire(train)

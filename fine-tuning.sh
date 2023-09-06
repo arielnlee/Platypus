@@ -1,5 +1,5 @@
 torchrun --nproc_per_node=2 --master_port=1234 finetune.py \
-    --base_model meta-llama/Llama-2-13b-hf \
+    --base_model meta-llama/Llama-2-7b-hf \
     --data-path garage-bAInd/Open-Platypus \
     --output_dir ./llama2-platypus-13b \
     --batch_size 16 \
@@ -7,7 +7,7 @@ torchrun --nproc_per_node=2 --master_port=1234 finetune.py \
     --num_epochs 1 \
     --learning_rate 0.0004 \
     --cutoff_len 4096 \
-    --val_set_size 0 \
+    --val_set_size 1000 \
     --lora_r 16 \
     --lora_alpha 16 \
     --lora_dropout 0.05 \
@@ -17,4 +17,5 @@ torchrun --nproc_per_node=2 --master_port=1234 finetune.py \
     --group_by_length False \
     --prompt_template_name alpaca \
     --lr_scheduler 'cosine' \
-    --warmup_steps 100
+    --warmup_steps 100 \
+    --wandb_project platypus \
