@@ -31,7 +31,7 @@ def main(
     lora_weights: str = "",
     prompt_template: str = "alpaca",
     csv_path: str = "",
-    output_csv_path: str = ""
+    output_csv_path: str = "",
 ):
     base_model = base_model or os.environ.get("BASE_MODEL", "")
 
@@ -85,19 +85,27 @@ def main(
     results = []
     max_batch_size = 16
     for i in range(0, len(instructions), max_batch_size):
-        instruction_batch = instructions[i:i + max_batch_size]
-        input_batch = inputs[i:i + max_batch_size]
-        print(f"Processing batch {i // max_batch_size + 1} of {len(instructions) // max_batch_size + 1}...")
+        instruction_batch = instructions[i : i + max_batch_size]
+        input_batch = inputs[i : i + max_batch_size]
+        print(
+            f"Processing batch {i // max_batch_size + 1} of {len(instructions) // max_batch_size + 1}..."
+        )
         start_time = time.time()
-    
-        prompts = [prompter.generate_prompt(instruction, None) for instruction, input in zip(instruction_batch, input_batch)]
+
+        prompts = [
+            prompter.generate_prompt(instruction, None)
+            for instruction, input in zip(instruction_batch, input_batch)
+        ]
         batch_results = evaluate(prompter, prompts, model, tokenizer)
-            
+
         results.extend(batch_results)
-        print(f"Finished processing batch {i // max_batch_size + 1}. Time taken: {time.time() - start_time:.2f} seconds")
+        print(
+            f"Finished processing batch {i // max_batch_size + 1}. Time taken: {time.time() - start_time:.2f} seconds"
+        )
 
     df["model_output"] = results
     df.to_csv(output_csv_path, index=False)
+
 
 def evaluate(prompter, prompts, model, tokenizer):
     batch_outputs = []
@@ -105,9 +113,15 @@ def evaluate(prompter, prompts, model, tokenizer):
     for prompt in prompts:
         input_ids = tokenizer.encode(prompt, return_tensors="pt").to(device)
 
-        generation_output = model.generate(input_ids=input_ids, num_beams=1, num_return_sequences=1,
-                                           max_new_tokens=2048, temperature=0.15, top_p=0.95)
-        
+        generation_output = model.generate(
+            input_ids=input_ids,
+            num_beams=1,
+            num_return_sequences=1,
+            max_new_tokens=2048,
+            temperature=0.15,
+            top_p=0.95,
+        )
+
         output = tokenizer.decode(generation_output[0], skip_special_tokens=True)
         resp = prompter.get_response(output)
         print(resp)
@@ -119,4 +133,3 @@ def evaluate(prompter, prompts, model, tokenizer):
 if __name__ == "__main__":
     torch.cuda.empty_cache()
     fire.Fire(main)
-

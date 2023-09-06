@@ -2,9 +2,10 @@ import os
 import json
 import subprocess
 import os
+
 # The directory where the json files are stored
 # dir_path = 'original'
-output_file = 'scibench_formatted.json'
+output_file = "scibench_formatted.json"
 
 import subprocess
 
@@ -27,7 +28,7 @@ if result_clone.returncode == 0:
 else:
     print("An error occurred while cloning the repository.")
 
-json_files = [f for f in os.listdir(target_path) if f.endswith('.json')]
+json_files = [f for f in os.listdir(target_path) if f.endswith(".json")]
 
 
 new_data = []
@@ -37,26 +38,25 @@ for json_file in json_files:
     file_path = os.path.join(target_path, json_file)
 
     # Open each json file
-    with open(file_path, 'r') as f:
+    with open(file_path, "r") as f:
         # Load the data
         file_data = json.load(f)
-        
+
         # Transform the data
         for d in file_data:
-            output = d.get('solution')
+            output = d.get("solution")
             if not output:
-                output = d.get('answer_number')
+                output = d.get("answer_number")
             transformed_data = {
-                "instruction": d.get('problem_text'),
-                "input": '',
-                "output": output
+                "instruction": d.get("problem_text"),
+                "input": "",
+                "output": output,
             }
             new_data.append(transformed_data)
 
 # Save the transformed data to a new json file
-with open(output_file, 'w') as f:
+with open(output_file, "w") as f:
     json.dump(new_data, f, indent=1)
 
 # Remove the cloned repository
 result_remove = subprocess.run(["rm", "-rf", repo_name])
-
