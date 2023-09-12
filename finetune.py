@@ -102,6 +102,8 @@ def train(
     resume_from_checkpoint: str = None,  # either training checkpoint or final adapter
     prompt_template_name: str = "alpaca",
 ):
+    use_wandb = len(wandb_project) > 0
+
     if int(os.environ.get("LOCAL_RANK", 0)) == 0:  # check if this is the main process
         print(
             f"Params using prompt template {prompt_template_name}:\n"
@@ -130,10 +132,9 @@ def train(
             f"resume_from_checkpoint: {resume_from_checkpoint or False}\n"
         )
 
-        use_wandb = len(wandb_project) > 0
         if use_wandb:
             now_str = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-            run_name = f"{base_model}_batch-{batch_size}"
+            run_name = f"{base_model}_batch-{batch_size}_{now_str}"
             wandb.init(project=wandb_project, name=run_name, group=now_str)
     assert (
         base_model
@@ -279,14 +280,14 @@ def train(
             num_train_epochs=num_epochs,
             learning_rate=learning_rate,
             # dataloader_num_workers=16,
-            fp16=False,
-            bf16=True,
+            fp16=True, # False for Llama2-7b
+            # bf16=True, # True for Llama2-7b
             logging_steps=5,
             optim="adamw_torch",
             evaluation_strategy="steps" if val_set_size > 0 else "no",
             save_strategy="steps",
             eval_steps=20 if val_set_size > 0 else None,
-            save_steps=1000,
+            save_steps=700,
             lr_scheduler_type=lr_scheduler,
             output_dir=output_dir,
             save_total_limit=2,
@@ -298,7 +299,7 @@ def train(
         data_collator=transformers.DataCollatorForSeq2Seq(
             tokenizer, pad_to_multiple_of=8, return_tensors="pt", padding=True
         ),
-        # callbacks=[SavePeftModelCallback, LoadBestPeftModelCallback], # ONLY USE LoadBestPeftModelCallback if val_set_size > 0
+        callbacks=[SavePeftModelCallback, LoadBestPeftModelCallback], # ONLY USE LoadBestPeftModelCallback if val_set_size > 0
     )
     model.config.use_cache = False
 
@@ -318,4 +319,6 @@ def train(
 
 if __name__ == "__main__":
     torch.cuda.empty_cache()
-    fire.Fire(train)
+    fire.Fire(
+        train
+    )  # fire automatically converts command line arguments to function arguments

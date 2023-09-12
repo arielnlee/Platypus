@@ -1,10 +1,20 @@
+#!/bin/bash
+
+# run with accelerate
+# accelerate launch \
+#     --config_file ds_zero3_cpu.yaml \
+#     finetune.py \
+#     --base_model meta-llama/Llama-2-13b-hf \
+#     ...
+
+# run with torch.distributed.launch
 torchrun --nproc_per_node=2 --master_port=1234 finetune.py \
-    --base_model meta-llama/Llama-2-7b-hf \
+    --base_model meta-llama/Llama-2-13b-hf \
     --data-path garage-bAInd/Open-Platypus \
-    --output_dir ./llama2-platypus-13b \
+    --output_dir ./llama2-13b-platypus-adapter \
     --batch_size 16 \
     --micro_batch_size 1 \
-    --num_epochs 1 \
+    --num_epochs 2 \
     --learning_rate 0.0004 \
     --cutoff_len 4096 \
     --val_set_size 1000 \
