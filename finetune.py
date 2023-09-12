@@ -280,7 +280,7 @@ def train(
             num_train_epochs=num_epochs,
             learning_rate=learning_rate,
             # dataloader_num_workers=16,
-            fp16=True, # False for Llama2-7b
+            fp16=True,  # False for Llama2-7b
             # bf16=True, # True for Llama2-7b
             logging_steps=5,
             optim="adamw_torch",
@@ -299,7 +299,10 @@ def train(
         data_collator=transformers.DataCollatorForSeq2Seq(
             tokenizer, pad_to_multiple_of=8, return_tensors="pt", padding=True
         ),
-        callbacks=[SavePeftModelCallback, LoadBestPeftModelCallback], # ONLY USE LoadBestPeftModelCallback if val_set_size > 0
+        callbacks=[
+            SavePeftModelCallback,
+            LoadBestPeftModelCallback,
+        ],  # ONLY USE LoadBestPeftModelCallback if val_set_size > 0
     )
     model.config.use_cache = False
 

@@ -15,5 +15,6 @@ def push(model_name):
     model.push_to_hub(repo_name)
     tokenizer.push_to_hub(repo_name)
 
+
 if __name__ == "__main__":
     Fire(push)
