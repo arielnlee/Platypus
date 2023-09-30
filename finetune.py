@@ -143,8 +143,7 @@ def train(
 
     model = LlamaForCausalLM.from_pretrained(
         base_model,
-        load_in_8bit=True,
-        torch_dtype=torch.float16,
+        torch_dtype=torch.bfloat16,
         device_map=device_map)
 
     tokenizer = LlamaTokenizer.from_pretrained(base_model)
@@ -272,7 +271,8 @@ def train(
             num_train_epochs=num_epochs,
             learning_rate=learning_rate,
             # dataloader_num_workers=16,
-            fp16=True,
+            fp16=False,
+            bf16=True,
             logging_steps=1,
             optim="adamw_torch",
             evaluation_strategy="steps" if val_set_size > 0 else "no",
