@@ -67,6 +67,7 @@ def train(
     learning_rate: float = 3e-4,
     cutoff_len: int = 4096,
     val_set_size: int = 0,
+    eval_steps: int = 200,
     lr_scheduler: str = "cosine",
     warmup_steps: int = 100, 
     # lora hyperparams
@@ -277,7 +278,7 @@ def train(
             optim="adamw_torch",
             evaluation_strategy="steps" if val_set_size > 0 else "no",
             save_strategy="steps",
-            eval_steps=200 if val_set_size > 0 else None,
+            eval_steps=eval_steps if val_set_size > 0 else None,
             save_steps=1000,
             lr_scheduler_type=lr_scheduler,
             output_dir=output_dir,

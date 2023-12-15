@@ -8,6 +8,7 @@ torchrun --nproc_per_node=2 --master_port=1234 finetune.py \
     --learning_rate 0.0004 \
     --cutoff_len 4096 \
     --val_set_size 0 \
+    --eval_steps 200 \
     --lora_r 16 \
     --lora_alpha 16 \
     --lora_dropout 0.05 \
