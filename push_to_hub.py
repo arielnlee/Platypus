@@ -18,15 +18,21 @@ def get_args():
 def main():
     args = get_args()
 
+    if args.device == 'auto':
+        device_arg = { 'device_map': 'auto' }
+    else:
+        device_arg = { 'device_map': { "": args.device} }
+
     print(f"Loading base model: {args.base_model_name_or_path}")
     base_model = AutoModelForCausalLM.from_pretrained(
         args.base_model_name_or_path,
         return_dict=True,
-        torch_dtype=torch.float16
+        torch_dtype=torch.float16,
+        **device_arg
     )
 
     print(f"Loading PEFT: {args.peft_model_path}")
-    model = PeftModel.from_pretrained(base_model, args.peft_model_path)
+    model = PeftModel.from_pretrained(base_model, args.peft_model_path, **device_arg)
     print(f"Running merge_and_unload")
     model = model.merge_and_unload()
 
