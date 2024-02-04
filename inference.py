@@ -106,7 +106,8 @@ def evaluate(prompter, prompts, model, tokenizer):
         input_ids = tokenizer.encode(prompt, return_tensors="pt").to(device)
 
         generation_output = model.generate(input_ids=input_ids, num_beams=1, num_return_sequences=1,
-                                           max_new_tokens=2048, temperature=0.15, top_p=0.95)
+                                           max_new_tokens=2048, temperature=0.15, top_p=0.95,
+                                           repetition_penalty=1.2)
         
         output = tokenizer.decode(generation_output[0], skip_special_tokens=True)
         resp = prompter.get_response(output)

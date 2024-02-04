@@ -1,5 +1,5 @@
 python inference.py \
-    --base_model meta-llama/Llama-2-13b-hf \
-    --lora_weights llama2-platypus-13b \
-    --csv_path test.csv \
+    --base_model hyunseoki/ko-en-llama2-13b \
+    --lora_weights persona/checkpoint-60 \
+    --csv_path test_persona.csv \
     --output_csv_path output.csv
